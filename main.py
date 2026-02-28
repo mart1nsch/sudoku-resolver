@@ -21,7 +21,7 @@ def create_reversed_sudoku(sudoku:list) -> list[list]:
     
     return reversed_sudoku
 
-def return_missing_values(line_or_row:list) -> list:
+def return_missing_values_from_line_or_row(line_or_row:list) -> list:
     missing_values = []
 
     for i in range(1, 10):
@@ -30,11 +30,13 @@ def return_missing_values(line_or_row:list) -> list:
     
     return missing_values
 
+def get_missing_values(matrix:list) -> list:
+    missing_values = []
+    for i in matrix:
+        missing_values.append(return_missing_values_from_line_or_row(i))
+    return missing_values
+
 reversed_sudoku = create_reversed_sudoku(sudoku)
 
-lines_missing_values = []
-rows_missing_values = []
-for i in sudoku:
-    lines_missing_values.append(return_missing_values(i))
-for i in reversed_sudoku:
-    rows_missing_values.append(return_missing_values(i))
+lines_missing_values = get_missing_values(sudoku) 
+rows_missing_values = get_missing_values(reversed_sudoku)
