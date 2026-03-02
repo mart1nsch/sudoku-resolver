@@ -10,76 +10,67 @@ sudoku = [
     [   8, None, None, None, None, None, None,    2,    3],
 ]
 
-sudoku_original = sudoku.copy()
-
-reversed_sudoku = []
-
-groups_of_numbers = {
-    0: [0, 1, 2],
-    1: [0, 1, 2],
-    2: [0, 1, 2],
-    3: [3, 4, 5],
-    4: [3, 4, 5],
-    5: [3, 4, 5],
-    6: [6, 7, 8],
-    7: [6, 7, 8],
-    8: [6, 7, 8]
-}
-
-def create_reversed_sudoku(sudoku:list) -> list[list]:
+def find_empty() -> tuple:
     for i in range(len(sudoku)):
-        line = []
         for j in range(len(sudoku[i])):
-            line.append(sudoku[j][i])
-        reversed_sudoku.append(line)
+            if sudoku[i][j] is None:
+                return (i, j)
 
-def return_missing_values_from_line_or_row(line_or_row:list) -> list:
-    missing_values = []
-
-    for i in range(1, 10):
-        if not i in line_or_row:
-            missing_values.append(i)
+def position_is_valid(num:int, row:int, col:int):
     
-    return missing_values
+    def check_area(num:int, row:int, col:int) -> bool:
+        groups_of_numbers = {
+            0: [0, 1, 2],
+            1: [0, 1, 2],
+            2: [0, 1, 2],
+            3: [3, 4, 5],
+            4: [3, 4, 5],
+            5: [3, 4, 5],
+            6: [6, 7, 8],
+            7: [6, 7, 8],
+            8: [6, 7, 8]
+        }
 
-def get_missing_values(matrix:list) -> list:
-    missing_values = []
-    for i in matrix:
-        missing_values.append(return_missing_values_from_line_or_row(i))
-    return missing_values
+        for i in groups_of_numbers[row]:
+            for j in groups_of_numbers[col]:
+                if sudoku[i][j] == num:
+                    return False
+        return True
 
-def check_number_in_area(number:int, row:int, col:int) -> bool:
-    for i in groups_of_numbers[row]:
-        for j in groups_of_numbers[col]:
-            if sudoku[i][j] == number:
+    def check_row(num:int, row:int) -> bool:
+        for i in sudoku[row]:
+            if i == num:
                 return False
-    return True
+        return True
 
-def found_position_to_place(number:int, row:int = None, col:int = None) -> tuple:
-    if row is not None:
-        for i in range(len(sudoku[row])):
-            if (sudoku[row][i] is None
-                and number not in reversed_sudoku[i]
-                and check_number_in_area(number, row, i)):
-                return (row, i)
-    return None
+    def check_col(num:int, col:int) -> bool:
+        for i in sudoku:
+            if i[col] == num:
+                return False
+        return True
 
-def place_number(number:int, position:tuple):
-    if position:
-        sudoku[position[0]][position[1]] = number
+    return check_area(num, row, col) and check_row(num, row) and check_col(num, col)
 
-def place_missing_values(missing:tuple):
-    for i in range(1, 10):
-        for row in range(len(missing[0])):
-            if i in missing[0][row]:
-                position = found_position_to_place(number=i, row=row)
-                place_number(i, position)
+def solve():
+    position_empty = find_empty()
+    if not position_empty:
+        return True
+    
+    row, col = position_empty
+
+    for num in range(1, 10):
+        if position_is_valid(num, row, col):
+            sudoku[row][col] = num
+
+            if solve():
+                return True
+            
+            sudoku[row][col] = None
+    
+    return False
 
 def main():
-    create_reversed_sudoku(sudoku)
-    missing_values = (get_missing_values(sudoku), get_missing_values(reversed_sudoku))
-    place_missing_values(missing_values)
-    
+    solve()
     for i in sudoku:
         print(i)
 
