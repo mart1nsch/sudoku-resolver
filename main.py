@@ -10,6 +10,10 @@ sudoku = [
     [   8, None, None, None, None, None, None,    2,    3],
 ]
 
+sudoku_original = sudoku.copy()
+
+reversed_sudoku = []
+
 groups_of_numbers = {
     0: [0, 1, 2],
     1: [0, 1, 2],
@@ -23,15 +27,11 @@ groups_of_numbers = {
 }
 
 def create_reversed_sudoku(sudoku:list) -> list[list]:
-    reversed_sudoku = []
-
     for i in range(len(sudoku)):
         line = []
         for j in range(len(sudoku[i])):
             line.append(sudoku[j][i])
         reversed_sudoku.append(line)
-    
-    return reversed_sudoku
 
 def return_missing_values_from_line_or_row(line_or_row:list) -> list:
     missing_values = []
@@ -48,30 +48,37 @@ def get_missing_values(matrix:list) -> list:
         missing_values.append(return_missing_values_from_line_or_row(i))
     return missing_values
 
+def check_number_in_area(number:int, row:int, col:int) -> bool:
+    for i in groups_of_numbers[row]:
+        for j in groups_of_numbers[col]:
+            if sudoku[i][j] == number:
+                return False
+    return True
+
 def found_position_to_place(number:int, row:int = None, col:int = None) -> tuple:
     if row is not None:
         for i in range(len(sudoku[row])):
-            if sudoku[row][i] is None:
+            if (sudoku[row][i] is None
+                and number not in reversed_sudoku[i]
+                and check_number_in_area(number, row, i)):
                 return (row, i)
+    return None
 
 def place_number(number:int, position:tuple):
-    sudoku[position[0]][position[1]] = number
+    if position:
+        sudoku[position[0]][position[1]] = number
 
-def remove_missing_value(number:int, missing_list:list):
-    pass
-
-def place_missing_values(missing:tuple, reversed_sudoku:list[list]):
+def place_missing_values(missing:tuple):
     for i in range(1, 10):
         for row in range(len(missing[0])):
             if i in missing[0][row]:
-                place_number(i, found_position_to_place(number=i, row=row))
-                remove_missing_value(i, missing[0][row])
-
+                position = found_position_to_place(number=i, row=row)
+                place_number(i, position)
 
 def main():
-    reversed_sudoku = create_reversed_sudoku(sudoku)
+    create_reversed_sudoku(sudoku)
     missing_values = (get_missing_values(sudoku), get_missing_values(reversed_sudoku))
-    place_missing_values(missing_values, reversed_sudoku)
+    place_missing_values(missing_values)
     
     for i in sudoku:
         print(i)
