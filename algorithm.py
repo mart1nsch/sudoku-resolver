@@ -16,7 +16,7 @@ def find_empty() -> tuple:
             if sudoku[i][j] is None:
                 return (i, j)
 
-def position_is_valid(num:int, row:int, col:int):
+def position_is_valid(num:int, row:int, col:int) -> bool:
     
     def check_area(num:int, row:int, col:int) -> bool:
         groups_of_numbers = {
@@ -51,7 +51,7 @@ def position_is_valid(num:int, row:int, col:int):
 
     return check_area(num, row, col) and check_row(num, row) and check_col(num, col)
 
-def solve():
+def solve() -> bool:
     position_empty = find_empty()
     if not position_empty:
         return True
@@ -74,4 +74,5 @@ def main():
     for i in sudoku:
         print(i)
 
-main()
+if __name__ == '__main__':
+    main()
